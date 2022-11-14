@@ -13,12 +13,10 @@ import java.util.Random;
  * @author mjimen19
  */
 public class GameManager {
-    static ArrayList <Pokemon> allPokemon = new ArrayList();
-    ArrayList <Pokemon> playerPokemon = new ArrayList();
+    ArrayList <Pokemon> allPokemon = new ArrayList();
     
     public GameManager(){
         initPokemon();
-        catchRandomPokemon();   //To get a starter
     }
     
     /*
@@ -56,20 +54,20 @@ public class GameManager {
     /*
         Get a random Pokemon from the list allPokemon, and adds it to the player's Pokemon list
     */
-    public Pokemon catchRandomPokemon(){
+    public Pokemon catchRandomPokemon(User userLogged){
         Pokemon newPoke = null;
-        if(playerPokemon.size() <= 6){
+        if(userLogged.getPokemonList().size() <= 6){
             Random random = new Random();
             newPoke = new Pokemon(allPokemon.get(random.nextInt(allPokemon.size())));
-            playerPokemon.add(newPoke);
+            userLogged.addPokemon(newPoke);
         }
         return newPoke;
     }
 
-    public String getPlayerPokemonDataString(){
+    public String getPlayerPokemonDataString(User userLogged){
         String text = "";
         int count = 0;
-        for(Pokemon p : playerPokemon){
+        for(Pokemon p : userLogged.getPokemonList()){
             text += count + " -> " + p.getDataString();
             count++;
         }
@@ -79,10 +77,10 @@ public class GameManager {
     /*
         Train a Pokemon specified by an index, returns false if the Pokemon doesn't exist
     */
-    public boolean trainPokemon(int index){
+    public boolean trainPokemon(User userLogged, int index){
         boolean canTrain = false;
-        if(index < playerPokemon.size()){
-            playerPokemon.get(index).train();
+        if(index < userLogged.getPokemonList().size()){
+            userLogged.getPokemonList().get(index).train();
             canTrain = true;
         }
         return canTrain;
@@ -91,33 +89,30 @@ public class GameManager {
     /*
         Combat with a random rival from the allPokemon list, returns true if player wins and false if player ties or losess
     */
-    public boolean combatPokemon(int index){
+    public boolean combatPokemon(User userLogged, int index){
         boolean playerWin = false;
         Random random = new Random();
         Pokemon rival = new Pokemon(allPokemon.get(random.nextInt(allPokemon.size())));
         rival.setRandomLevel();
-        System.out.println("Te encuentras con un pokemon salvaje: ");
+        System.out.println("You find a wild pokemon: ");
         System.out.println(rival.getDataString());
-        if(index <= playerPokemon.size()){
-            playerWin = playerPokemon.get(index).combat(rival);
+        if(index <= userLogged.getPokemonList().size()){
+            playerWin = userLogged.getPokemonList().get(index).combat(rival);
         }
         
         return playerWin;
     }
     
-    public boolean combatUser(User rival, int index){
+    public boolean combatUser(User userLogged, User userRival, int index){
         boolean playerWin = false;
-        Pokemon rivalPoke = new Pokemon(rival.getRandomPokemon());
-        System.out.println("The rival takes to combat the pokemon:");
-        System.out.println(rivalPoke.getDataString());
-        if(index <= playerPokemon.size()){
-            playerWin = playerPokemon.get(index).combat(rivalPoke);
+        Random random = new Random();
+        Pokemon pokeRival = userRival.getPokemonList().get(random.nextInt(userRival.getPokemonList().size()));
+        System.out.println("You fight against the user " + userRival.getName() + " and the pokemon " + pokeRival.getName());
+        System.out.println(pokeRival.getDataString());
+        if(index <= userLogged.getPokemonList().size()){
+            playerWin = userLogged.getPokemonList().get(index).combat(pokeRival);
         }
         
         return playerWin;
-    }
-    
-    public static ArrayList<Pokemon> getAllPokemonList(){
-        return allPokemon;
     }
 }
